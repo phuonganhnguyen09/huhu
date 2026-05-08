@@ -246,29 +246,307 @@
 
 
         <section id="vui-hoc" class="tab-content space-y-8">
-            <div class="border-b border-stone-200 pb-4">
-                <h2 class="text-2xl font-bold text-black">Vui Học & Trải Nghiệm</h2>
-                <p class="text-stone-500 text-sm mt-1">Học mà chơi, chơi mà học! Thử tài thông minh của bạn qua mini-game nhỏ của Tổ 2 nhé!</p>
+          <!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vương Quốc Thẻ Bài Toán Học</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        body { font-family: 'Playfair Display', serif; }
+        
+        /* 3D Card Effects */
+        .perspective-1000 { perspective: 1000px; }
+        .transform-style-3d { transform-style: preserve-3d; transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1); }
+        .backface-hidden { backface-visibility: hidden; }
+        .rotate-y-180 { transform: rotateY(180deg); }
+        
+        /* Card Patterns & Gradients */
+        .card-front-pattern {
+            background-color: #1a202c;
+            background-image: radial-gradient(#4a5568 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        /* Animations */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0) rotateY(180deg); }
+            20% { transform: translateX(-10px) rotateY(180deg); }
+            40% { transform: translateX(10px) rotateY(180deg); }
+            60% { transform: translateX(-10px) rotateY(180deg); }
+            80% { transform: translateX(10px) rotateY(180deg); }
+        }
+        .shake-anim { animation: shake 0.5s ease-in-out; }
+        
+        .glow-green { box-shadow: 0 0 30px rgba(72, 187, 120, 0.8); }
+        .glow-red { box-shadow: 0 0 30px rgba(245, 101, 101, 0.8); }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen flex flex-col items-center justify-center p-4">
+
+    <div id="stats-bar" class="w-full max-w-3xl flex justify-between items-center mb-8 bg-gray-800 p-4 rounded-xl border border-gray-700 shadow-lg">
+        <div class="text-xl">
+            <span class="text-red-400 font-bold">❤️ HP: </span><span id="hp-display" class="font-bold">100</span>
+        </div>
+        <div class="text-2xl font-bold text-yellow-400 tracking-wider" id="level-display">
+            Ải 1: Vòng quay Xác suất
+        </div>
+        <div class="text-xl">
+            <span class="text-blue-400 font-bold">✨ Điểm: </span><span id="score-display" class="font-bold">0</span>
+        </div>
+    </div>
+
+    <div id="game-arena" class="relative w-full max-w-md aspect-[3/4] perspective-1000 cursor-pointer">
+        <div id="card-inner" class="w-full h-full relative transform-style-3d shadow-2xl rounded-2xl">
+            
+            <div id="card-front" class="absolute w-full h-full backface-hidden card-front-pattern border-4 border-gray-500 rounded-2xl flex flex-col items-center justify-center hover:border-blue-400 transition-colors duration-300">
+                <div class="text-6xl text-gray-400 mb-4 hover:text-blue-400 transition-colors duration-300">$\infty$</div>
+                <h2 class="text-2xl font-bold text-gray-300 tracking-widest text-center px-4">THẺ BÀI<br>PHÉP THUẬT</h2>
+                <p class="text-sm text-gray-500 mt-8">Click để lật bài</p>
             </div>
 
-            <div class="bg-white border border-stone-200 rounded-2xl p-6 max-w-lg mx-auto text-center space-y-6">
-                <div>
-                    <span class="px-3 py-1 bg-black text-white rounded-full text-xs font-bold uppercase tracking-wider">Mini Game</span>
-                    <h3 class="text-xl font-bold text-black mt-3">Thử Tài Tính Nhẩm Cùng Tổ 2</h3>
+            <div id="card-back" class="absolute w-full h-full backface-hidden rotate-y-180 bg-gray-100 text-gray-900 border-4 border-yellow-500 rounded-2xl flex flex-col p-6 shadow-inner">
+                <div class="flex-grow">
+                    <span class="text-sm font-bold text-yellow-600 uppercase tracking-widest" id="question-number">Câu 1</span>
+                    <h3 class="text-lg font-bold mt-2 mb-6" id="question-text">Loading...</h3>
                 </div>
+                
+                <div class="grid grid-cols-1 gap-3" id="answer-buttons">
+                    </div>
+            </div>
 
-                <div class="bg-stone-50 border border-stone-200 rounded-xl p-8">
-                    <span id="game-question" class="text-3xl font-extrabold tracking-wider text-black">8 x 7 = ?</span>
-                </div>
+        </div>
+    </div>
 
-                <div class="flex gap-2 max-w-xs mx-auto">
-                    <input type="number" id="game-answer" placeholder="Nhập đáp án..." class="flex-grow px-4 py-2 border border-stone-300 rounded-lg focus:outline-none focus:border-black font-semibold text-center">
-                    <button onclick="checkAnswer()" class="px-6 py-2 bg-black text-white font-bold rounded-lg hover:bg-stone-800 transition-colors">Gửi</button>
-                </div>
+    <div id="end-screen" class="hidden flex-col items-center text-center bg-gray-800 p-10 rounded-2xl border-2 border-yellow-500 shadow-[0_0_50px_rgba(236,201,75,0.3)]">
+        <h1 class="text-4xl font-bold text-yellow-400 mb-4" id="end-title">Huyền Thoại Toán Học</h1>
+        <p class="text-xl mb-6" id="end-message">Chúc mừng bạn đã vượt qua tất cả các ải!</p>
+        <div class="text-2xl mb-8">
+            ❤️ HP Còn Lại: <span id="final-hp" class="text-red-400 font-bold"></span> | 
+            ✨ Điểm Số: <span id="final-score" class="text-blue-400 font-bold"></span>
+        </div>
+        <button onclick="location.reload()" class="bg-yellow-600 hover:bg-yellow-500 text-white font-bold py-3 px-8 rounded-full transition-transform transform hover:scale-105">
+            Chơi Lại Từ Đầu
+        </button>
+    </div>
 
-                <p id="game-feedback" class="text-sm font-semibold min-h-[20px]"></p>
+    <script>
+        // --- BỘ CÔNG CỤ ÂM THANH (WEB AUDIO API) ---
+        let audioCtx;
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
 
-                <button onclick="generateQuestion()" class="text-xs text-stone-500 hover:text-black underline">Đổi câu hỏi khác</button>
+        const playSound = (type) => {
+            if (!audioCtx) return;
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            
+            const now = audioCtx.currentTime;
+
+            if (type === 'correct') {
+                // Âm thanh vui tươi, tăng dần
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(523.25, now); // Note C5
+                oscillator.frequency.setValueAtTime(659.25, now + 0.1); // Note E5
+                oscillator.frequency.setValueAtTime(783.99, now + 0.2); // Note G5
+                
+                gainNode.gain.setValueAtTime(0, now);
+                gainNode.gain.linearRampToValueAtTime(0.3, now + 0.05);
+                gainNode.gain.linearRampToValueAtTime(0, now + 0.4);
+                
+                oscillator.start(now);
+                oscillator.stop(now + 0.4);
+            } else if (type === 'wrong') {
+                // Âm thanh trầm, trượt xuống buồn rầu
+                oscillator.type = 'sawtooth';
+                oscillator.frequency.setValueAtTime(300, now);
+                oscillator.frequency.exponentialRampToValueAtTime(80, now + 0.5);
+                
+                gainNode.gain.setValueAtTime(0, now);
+                gainNode.gain.linearRampToValueAtTime(0.2, now + 0.1);
+                gainNode.gain.linearRampToValueAtTime(0, now + 0.5);
+                
+                oscillator.start(now);
+                oscillator.stop(now + 0.5);
+            } else if (type === 'flip') {
+                // Tiếng lật bài (swoosh)
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(300, now);
+                oscillator.frequency.exponentialRampToValueAtTime(600, now + 0.1);
+                
+                gainNode.gain.setValueAtTime(0, now);
+                gainNode.gain.linearRampToValueAtTime(0.1, now + 0.05);
+                gainNode.gain.linearRampToValueAtTime(0, now + 0.1);
+                
+                oscillator.start(now);
+                oscillator.stop(now + 0.1);
+            }
+        };
+
+        // --- DATABASE CÂU HỎI ---
+        const questions = [
+            { q: 'Cho hai biến cố A và B. Biến cố "A hoặc B xảy ra" được gọi là', options: ['Biến cố giao của A và B.', 'Biến cố đối của A.', 'Biến cố hợp của A và B.', 'Biến cố đối của B.'], answer: 2 },
+            { q: 'Cho hai biến cố A và B, nếu việc xảy ra hay không xảy ra của biến cố A không làm ảnh hưởng tới xác suất xảy ra của biến cố B thì hai biến cố A và B được gọi là', options: ['Xung khắc.', 'Đối nhau.', 'Độc lập.', 'Hợp nhau.'], answer: 2 },
+            { q: 'Xét phép thử gieo ngẫu nhiên một con xúc xắc đồng chất. Gọi A là biến cố: "Số chẵn", B là: "Số không chia hết cho 4". Hãy mô tả biến cố giao AB.', options: ['{2; 6}', '{2; 4; 6}', '{1; 2; 3; 5; 6}', '{1; 2; 3}'], answer: 0 },
+            { q: 'Theo dự báo, xác suất trời mưa là 0,4 và xác suất đường bị kẹt xe là 0,3. Giả sử hai hiện tượng này độc lập. Xác suất vừa mưa vừa kẹt xe là:', options: ['0,12', '0,7', '0,1', '0,3'], answer: 0 },
+            { q: 'Phương trình \\(2^n=3\\) có nghiệm:', options: ['Nguyên', 'Hữu tỉ', 'Vô tỉ', 'Không có'], answer: 2 },
+            { q: 'Nghiệm của phương trình \\(\\log_2(x + 7) = 5\\) là', options: ['x = 18', 'x = 25', 'x = 39', 'x = 3'], answer: 1 },
+            { q: 'Cho hình chóp S.ABC có \\(SA \\perp (ABC)\\). Khi đó khoảng cách từ điểm S đến mặt phẳng (ABC) là:', options: ['SA', 'SB', 'SC', 'AB'], answer: 0 },
+            { q: 'Cho điểm A và mặt phẳng (P). Khoảng cách từ A đến (P) là:', options: ['Khoảng cách từ A đến một điểm bất kỳ trên (P)', 'Độ dài đoạn vuông góc từ A đến (P)', 'Độ dài đoạn song song từ A đến (P)', 'Luôn bằng 0'], answer: 1 },
+            { q: 'Tung 1 xúc xắc, xác suất ra số chẵn là:', options: ['1/2', '1/3', '2/3', '1/6'], answer: 0 },
+            { q: 'Lớp của bạn Phương có 40 học sinh, có đúng 1 lớp trưởng. Chọn ngẫu nhiên 1 học sinh. Xác suất chọn trúng lớp trưởng là:', options: ['1/2', '1/20', '1/40', '1'], answer: 2 },
+            { q: 'Tìm đạo hàm của hàm số \\(y = x^7\\).', options: ['\\(y\' = 7x^6\\)', '\\(y\' = 6x^7\\)', '\\(y\' = x^6\\)', '\\(y\' = 7x^8\\)'], answer: 0 },
+            { q: 'Đạo hàm cấp hai của hàm số \\(y = x - \\cos x\\) là', options: ['\\(-\\cos x\\)', '\\(1 - \\sin x\\)', '\\(1 + \\sin x\\)', '\\(\\cos x\\)'], answer: 3 }
+        ];
+
+        let currentQuestionIndex = 0;
+        let hp = 100;
+        let score = 0;
+        let isCardFlipped = false;
+        let isAnswering = false;
+
+        const cardInner = document.getElementById('card-inner');
+        const gameArena = document.getElementById('game-arena');
+        const endScreen = document.getElementById('end-screen');
+        const statsBar = document.getElementById('stats-bar');
+
+        // Bắt đầu bật âm thanh khi người chơi chạm vào game lần đầu
+        document.body.addEventListener('click', initAudio, { once: true });
+
+        function loadQuestion() {
+            if (currentQuestionIndex >= questions.length || hp <= 0) {
+                endGame();
+                return;
+            }
+
+            const levelDisplay = document.getElementById('level-display');
+            if(currentQuestionIndex < 4) levelDisplay.innerText = "Ải 1: Vòng quay Xác suất";
+            else if(currentQuestionIndex < 8) levelDisplay.innerText = "Ải 2: Cổng Mũ & Logarit";
+            else levelDisplay.innerText = "Ải 3: Đỉnh cao Đạo hàm";
+
+            const qData = questions[currentQuestionIndex];
+            document.getElementById('question-number').innerText = `Câu ${currentQuestionIndex + 1} / 12`;
+            document.getElementById('question-text').innerHTML = qData.q;
+            
+            const btnContainer = document.getElementById('answer-buttons');
+            btnContainer.innerHTML = '';
+            
+            const labels = ['A', 'B', 'C', 'D'];
+            qData.options.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'w-full text-left bg-white border-2 border-gray-300 hover:border-blue-500 hover:bg-blue-50 text-gray-800 font-semibold py-2 px-4 rounded-xl transition-all duration-200';
+                btn.innerHTML = `<span class="font-bold text-blue-600 mr-2">${labels[index]}.</span> ${opt}`;
+                btn.onclick = (e) => {
+                    e.stopPropagation();
+                    handleAnswer(index);
+                };
+                btnContainer.appendChild(btn);
+            });
+
+            if (window.MathJax) {
+                MathJax.typesetPromise();
+            }
+        }
+
+        gameArena.addEventListener('click', () => {
+            initAudio(); // Đảm bảo âm thanh sẵn sàng
+            if (!isCardFlipped && !isAnswering) {
+                cardInner.classList.add('rotate-y-180');
+                isCardFlipped = true;
+                playSound('flip');
+            }
+        });
+
+        function handleAnswer(selectedIndex) {
+            if (isAnswering) return;
+            isAnswering = true;
+            
+            const qData = questions[currentQuestionIndex];
+            const isCorrect = (selectedIndex === qData.answer);
+            const cardBack = document.getElementById('card-back');
+
+            if (isCorrect) {
+                playSound('correct');
+                score += 10;
+                hp = Math.min(100, hp + 5);
+                cardBack.classList.add('glow-green', 'border-green-500');
+            } else {
+                playSound('wrong');
+                hp -= 15;
+                cardInner.classList.add('shake-anim');
+                cardBack.classList.add('glow-red', 'border-red-500');
+            }
+
+            updateStats();
+
+            setTimeout(() => {
+                cardInner.classList.remove('shake-anim');
+                cardBack.classList.remove('glow-green', 'glow-red', 'border-green-500', 'border-red-500');
+                
+                cardInner.classList.remove('rotate-y-180');
+                isCardFlipped = false;
+
+                setTimeout(() => {
+                    currentQuestionIndex++;
+                    loadQuestion();
+                    isAnswering = false;
+                }, 600);
+
+            }, 1500);
+        }
+
+        function updateStats() {
+            document.getElementById('hp-display').innerText = hp;
+            document.getElementById('score-display').innerText = score;
+        }
+
+        function endGame() {
+            gameArena.classList.add('hidden');
+            statsBar.classList.add('hidden');
+            endScreen.classList.remove('hidden');
+            endScreen.classList.add('flex');
+
+            document.getElementById('final-hp').innerText = hp;
+            document.getElementById('final-score').innerText = score;
+
+            const title = document.getElementById('end-title');
+            const message = document.getElementById('end-message');
+
+            if (hp <= 0) {
+                title.innerText = "Năng lượng cạn kiệt...";
+                title.className = "text-4xl font-bold text-red-500 mb-4";
+                message.innerText = "Đừng nản chí! Hãy ôn tập lại và thử thách lần nữa nhé.";
+                playSound('wrong');
+            } else if (score >= 100) {
+                title.innerText = "Huyền Thoại Toán Học!";
+                message.innerText = "Bạn đã chinh phục hoàn toàn 3 ải xuất sắc!";
+                playSound('correct');
+            } else {
+                title.innerText = "Học Giả Thông Thái";
+                title.className = "text-4xl font-bold text-blue-400 mb-4";
+                message.innerText = "Thành tích rất tốt! Chỉ cần rèn luyện thêm một chút nữa.";
+                playSound('correct');
+            }
+        }
+
+        loadQuestion();
+    </script>
+</body>
+</html>
             </div>
         </section>
 
