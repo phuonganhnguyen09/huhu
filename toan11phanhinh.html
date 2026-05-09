@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mô hình Tương tác: Thể tích khối chóp S.ABCD</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+    <style>
+        /* CSS cho Tree Diagram */
+        .tree-node {
+            position: relative;
+            padding-left: 2rem;
+            margin-bottom: 1rem;
+            border-left: 2px solid #cbd5e1;
+            transition: all 0.3s ease;
+        }
+        .tree-node::before {
+            content: '';
+            position: absolute;
+            left: -0.4rem;
+            top: 0.5rem;
+            width: 0.75rem;
+            height: 0.75rem;
+            background-color: #3b82f6;
+            border-radius: 50%;
+            border: 2px solid white;
+        }
+        .hidden-content {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .show-content {
+            display: block;
+            opacity: 1;
+        }
+        #canvas-container {
+            cursor: grab;
+        }
+        #canvas-container:active {
+            cursor: grabbing;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 font-sans min-h-screen p-4 md:p-8">
+
+    <div class="max-w-7xl mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col md:flex-row h-auto md:h-[85vh]">
+        
+        <div class="w-full md:w-1/2 p-6 md:p-10 overflow-y-auto flex flex-col">
+            <h1 class="text-2xl md:text-3xl font-bold text-slate-800 mb-4">Bài toán Hình học Không gian</h1>
+            
+            <div class="bg-blue-50 text-blue-900 p-4 rounded-xl border border-blue-100 mb-6 shadow-inner">
+                <p class="font-medium"><strong>Đề bài:</strong> Cho hình chóp \(S.ABCD\) có đáy \(ABCD\) là hình thang vuông tại \(A\) và \(D\); \(AB = AD = 2a\); \(CD = a\); số đo góc nhị diện \([S, BC, A]\) bằng \(60^\circ\). Gọi \(I\) là trung điểm của cạnh \(AD\). Biết hai mặt phẳng \((SBI)\) và \((SCI)\) cùng vuông góc với mặt phẳng \((ABCD)\). Tính thể tích khối chóp \(S.ABCD\) theo \(a\).</p>
+            </div>
+
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-semibold text-slate-800">Sơ đồ phân tích (Tree Diagram)</h2>
+                <button id="btn-answer" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition-colors flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                    Xem Đáp Án
+                </button>
+            </div>
+
+            <div class="flex-grow">
+                <div class="tree-node">
+                    <button class="w-full text-left font-bold text-lg text-slate-700 hover:text-blue-600 focus:outline-none flex justify-between" onclick="toggleNode('node1')">
+                        Bước 1: Xác định đường cao khối chóp
+                        <span class="text-sm font-normal text-slate-400">(Click để mở/đóng)</span>
+                    </button>
+                    <div id="node1" class="hidden-content mt-2 text-slate-600 bg-slate-50 p-3 rounded-lg border border-slate-200">
+                        <p>Ta có: \((SBI) \perp (ABCD)\) và \((SCI) \perp (ABCD)\).</p>
+                        <p>Giao tuyến của \((SBI)\) và \((SCI)\) là \(SI\).</p>
+                        <p>\(\Rightarrow SI \perp (ABCD)\). Vậy \(SI\) là đường cao của hình chóp.</p>
+                    </div>
+                </div>
+
+                <div class="tree-node">
+                    <button class="w-full text-left font-bold text-lg text-slate-700 hover:text-blue-600 focus:outline-none flex justify-between" onclick="toggleNode('node2')">
+                        Bước 2: Tính diện tích đáy \(ABCD\)
+                        <span class="text-sm font-normal text-slate-400"></span>
+                    </button>
+                    <div id="node2" class="hidden-content mt-2 text-slate-600 bg-slate-50 p-3 rounded-lg border border-slate-200">
+                        <p>\(ABCD\) là hình thang vuông tại \(A, D\).</p>
+                        <p>\(S_{ABCD} = \frac{(AB + CD) \times AD}{2} = \frac{(2a + a) \times 2a}{2} = 3a^2\).</p>
+                    </div>
+                </div>
+
+                <div class="tree-node">
+                    <button class="w-full text-left font-bold text-lg text-slate-700 hover:text-blue-600 focus:outline-none flex justify-between" onclick="toggleNode('node3')">
+                        Bước 3: Xác định góc và tính chiều cao \(SI\)
+                        <span class="text-sm font-normal text-slate-400"></span>
+                    </button>
+                    <div id="node3" class="hidden-content mt-2 text-slate-600 bg-slate-50 p-3 rounded-lg border border-slate-200">
+                        <p>Kẻ \(IH \perp BC\) tại \(H\). Vì \(SI \perp BC\) nên \(BC \perp (SIH) \Rightarrow BC \perp SH\).</p>
+                        <p>Góc nhị diện \([S, BC, A]\) chính là góc \(\widehat{SHI} = 60^\circ\).</p>
+                        <p>Dùng phương pháp tọa độ phẳng (gốc \(D\)): \(D(0,0), A(0,2a), B(2a,2a), C(a,0)\), \(I(0,a)\).</p>
+                        <p>Phương trình đường thẳng \(BC\): \(2x - y - 2a = 0\).</p>
+                        <p>Khoảng cách \(IH = d(I, BC) = \frac{|2(0) - a - 2a|}{\sqrt{2^2 + (-1)^2}} = \frac{3a}{\sqrt{5}}\).</p>
+                        <p>\(SI = IH \times \tan(60^\circ) = \frac{3a}{\sqrt{5}} \times \sqrt{3} = \frac{3a\sqrt{15}}{5}\).</p>
+                    </div>
+                </div>
+
+                <div class="tree-node border-transparent">
+                    <button class="w-full text-left font-bold text-lg text-slate-700 hover:text-blue-600 focus:outline-none flex justify-between" onclick="toggleNode('node4')">
+                        Bước 4: Tính Thể tích \(V\)
+                        <span class="text-sm font-normal text-slate-400"></span>
+                    </button>
+                    <div id="node4" class="hidden-content mt-2 text-slate-600 bg-green-50 p-4 rounded-lg border border-green-200 shadow-sm">
+                        <p class="text-xl font-bold text-green-700 text-center">
+                            \(V = \frac{1}{3} \times S_{ABCD} \times SI\)
+                        </p>
+                        <p class="text-xl font-bold text-green-700 text-center mt-2">
+                            \(V = \frac{1}{3} \times 3a^2 \times \frac{3a\sqrt{15}}{5} = \frac{3a^3\sqrt{15}}{5}\)
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-4 text-xs text-slate-400 text-center">
+                * Kéo chuột bên mô hình 3D để xoay, cuộn chuột để thu phóng.
+            </div>
+        </div>
+
+        <div class="w-full md:w-1/2 bg-slate-900 relative" id="canvas-container">
+            <div class="absolute top-4 left-4 bg-black/50 text-white px-3 py-1 rounded text-sm z-10 backdrop-blur-sm pointer-events-none">
+                Mô hình 3D Tương tác
+            </div>
+            </div>
+    </div>
+
+    <script>
+        // --- LOGIC GIAO DIỆN SƠ ĐỒ CÂY ---
+        function toggleNode(nodeId) {
+            const node = document.getElementById(nodeId);
+            if (node.classList.contains('show-content')) {
+                node.classList.remove('show-content');
+            } else {
+                node.classList.add('show-content');
+            }
+        }
+
+        document.getElementById('btn-answer').addEventListener('click', function() {
+            // Mở tất cả các bước
+            for(let i=1; i<=4; i++) {
+                document.getElementById('node' + i).classList.add('show-content');
+            }
+            // Cuộn xuống cuối
+            document.querySelector('.overflow-y-auto').scrollTop = 1000;
+        });
+
+        // --- LOGIC THREE.JS (MÔ HÌNH 3D) ---
+        const container = document.getElementById('canvas-container');
+        
+        // 1. Setup Scene, Camera, Renderer
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color('#0f172a'); // slate-900
+
+        const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 100);
+        camera.position.set(5, 5, 6);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(container.clientWidth, container.clientHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        container.appendChild(renderer.domElement);
+
+        // Resize handler
+        window.addEventListener('resize', () => {
+            camera.aspect = container.clientWidth / container.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(container.clientWidth, container.clientHeight);
+        });
+
+        // 2. Controls
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+        controls.target.set(1, 1, 0);
+
+        // 3. Tọa độ các đỉnh (Giả sử a = 1 cho dễ vẽ)
+        // I làm gốc tọa độ (0, 0, 0)
+        // Trục AD dọc theo trục Z. I là trung điểm => A(0, 0, -1), D(0, 0, 1)
+        // Trục AB dọc theo trục X. AB = 2, B(2, 0, -1). CD = 1, C(1, 0, 1)
+        // Đường cao SI = 3*sqrt(15)/5 ≈ 2.324
+        
+        const h = (3 * Math.sqrt(15)) / 5;
+        
+        const ptI = new THREE.Vector3(0, 0, 0);
+        const ptA = new THREE.Vector3(0, 0, -1);
+        const ptD = new THREE.Vector3(0, 0, 1);
+        const ptB = new THREE.Vector3(2, 0, -1);
+        const ptC = new THREE.Vector3(1, 0, 1);
+        const ptS = new THREE.Vector3(0, h, 0);
+
+        // 4. Tạo vật liệu
+        const lineMaterial = new THREE.LineBasicMaterial({ color: 0xffffff, linewidth: 2 });
+        const hiddenLineMaterial = new THREE.LineDashedMaterial({ color: 0x94a3b8, dashSize: 0.1, gapSize: 0.1 });
+        const highlightLineMaterial = new THREE.LineBasicMaterial({ color: 0xef4444, linewidth: 3 }); // Đỏ cho đường cao
+        const planeMaterial = new THREE.MeshBasicMaterial({ color: 0x3b82f6, transparent: true, opacity: 0.2, side: THREE.DoubleSide });
+
+        // Hàm vẽ đoạn thẳng
+        function drawLine(v1, v2, material) {
+            const geometry = new THREE.BufferGeometry().setFromPoints([v1, v2]);
+            const line = new THREE.Line(geometry, material);
+            if(material instanceof THREE.LineDashedMaterial) line.computeLineDistances();
+            scene.add(line);
+        }
+
+        // Vẽ các cạnh nhìn thấy (Line)
+        drawLine(ptS, ptB, lineMaterial);
+        drawLine(ptS, ptC, lineMaterial);
+        drawLine(ptS, ptD, lineMaterial);
+        drawLine(ptB, ptC, lineMaterial);
+        drawLine(ptC, ptD, lineMaterial);
+        drawLine(ptA, ptB, lineMaterial);
+        drawLine(ptS, ptA, lineMaterial);
+
+        // Vẽ các cạnh nét đứt (bị khuất - giả sử AD, SI bị khuất)
+        drawLine(ptA, ptD, hiddenLineMaterial);
+        drawLine(ptS, ptI, highlightLineMaterial); // SI là đường cao
+
+        // Vẽ mặt đáy ABCD
+        const baseGeometry = new THREE.BufferGeometry();
+        const baseVertices = new Float32Array([
+            ptA.x, ptA.y, ptA.z,
+            ptB.x, ptB.y, ptB.z,
+            ptC.x, ptC.y, ptC.z,
+            ptA.x, ptA.y, ptA.z,
+            ptC.x, ptC.y, ptC.z,
+            ptD.x, ptD.y, ptD.z
+        ]);
+        baseGeometry.setAttribute('position', new THREE.BufferAttribute(baseVertices, 3));
+        const baseMesh = new THREE.Mesh(baseGeometry, planeMaterial);
+        scene.add(baseMesh);
+
+        // 5. Thêm nhãn (Text bằng HTML/CSS overlay)
+        function createLabel(text, position, offset = {x: 0, y: 15}) {
+            const div = document.createElement('div');
+            div.className = 'absolute text-white font-bold text-sm pointer-events-none text-shadow-sm';
+            div.style.textShadow = '1px 1px 2px black';
+            div.textContent = text;
+            container.appendChild(div);
+            return { element: div, position: position, offset: offset };
+        }
+
+        const labels = [
+            createLabel('S', ptS, {x: 0, y: -20}),
+            createLabel('A', ptA, {x: -15, y: 10}),
+            createLabel('B', ptB, {x: 10, y: 10}),
+            createLabel('C', ptC, {x: 10, y: 10}),
+            createLabel('D', ptD, {x: -15, y: 10}),
+            createLabel('I', ptI, {x: -15, y: 0})
+        ];
+
+        // 6. Animation Loop
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+
+            // Cập nhật vị trí nhãn HTML theo Camera
+            labels.forEach(label => {
+                const vector = label.position.clone();
+                vector.project(camera);
+                
+                const x = (vector.x * .5 + .5) * container.clientWidth;
+                const y = (vector.y * -.5 + .5) * container.clientHeight;
+                
+                label.element.style.left = `${x + label.offset.x}px`;
+                label.element.style.top = `${y + label.offset.y}px`;
+                
+                // Ẩn nhãn nếu nằm sau camera
+                label.element.style.display = vector.z > 1 ? 'none' : 'block';
+            });
+
+            renderer.render(scene, camera);
+        }
+        animate();
+    </script>
+</body>
+</html>
