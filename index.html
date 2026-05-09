@@ -234,23 +234,25 @@
                 <p class="text-stone-500 text-sm mt-1">Sản phẩm video thực hành ứng dụng toán học vào đời sống.</p>
             </div>
 
-            <div class="bg-white border border-stone-200 rounded-2xl p-4 md:p-6 space-y-4">
-                <div class="aspect-video bg-black rounded-xl overflow-hidden relative flex items-center justify-center text-white">
-                    <div class="text-center p-4">
-                        <div class="w-16 h-16 bg-white/20 hover:bg-white/30 backdrop-blur-md rounded-full flex items-center justify-center mx-auto mb-4 cursor-pointer transition-all">
-                            <svg class="w-8 h-8 text-white translate-x-[2px]" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                        </div>
-                        <p class="font-semibold text-lg">Vlog: Thực hành đo thể tích của mô hình Chùa Một Cột</p>
-                        <p class="text-sm text-stone-400 mt-1">Sản phẩm thực tế của Tổ 2</p>
-                    </div>
-                </div>
-                
+<div class="bg-white border border-stone-200 rounded-2xl p-4 md:p-6 space-y-4">
+    <div id="vlog-container" class="aspect-video bg-black rounded-xl overflow-hidden relative flex items-center justify-center text-white cursor-pointer group" onclick="playVlogVideo()">
+        <div id="vlog-poster" class="text-center p-4 transition-transform duration-300 group-hover:scale-105">
+            <div class="w-16 h-16 bg-white/20 hover:bg-white/30 backdrop-blur-md rounded-full flex items-center justify-center mx-auto mb-4 transition-colors">
+                <svg class="w-8 h-8 text-white translate-x-[2px]" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M8 5v14l11-7z"/>
+                </svg>
+            </div>
+            <p class="font-semibold text-lg">Vlog: Thực hành đo thể tích của mô hình Chùa Một Cột</p>
+            <p class="text-sm text-stone-400 mt-1">Sản phẩm thực tế của Tổ 2</p>
+        </div>
+    </div>
+</div>
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pt-2">
                     <div>
                         <h3 class="font-bold text-lg text-black">Vlog: Thực hành đo thể tích của mô hình Chùa Một Cột</h3>
                         <p class="text-sm text-stone-500">Thực hiện: Tổ 2 - Lớp 11B10</p>
                     </div>
-                    <span class="px-3 py-1 bg-stone-100 border border-stone-200 rounded-full text-xs font-medium text-stone-600">Độ dài: 05:45</span>
+                    <span class="px-3 py-1 bg-stone-100 border border-stone-200 rounded-full text-xs font-medium text-stone-600">Độ dài: 02:06</span>
                 </div>
             </div>
         </section>
@@ -581,7 +583,22 @@
             menuButtons.forEach(btn => {
                 btn.classList.remove('active');
             });
-
+// --- HÀM TỰ TẢI VIDEO KHI BẤM NÚT PLAY TRONG VLOG ---
+function playVlogVideo() {
+    const container = document.getElementById('vlog-container');
+    // Nhớ thay mã ID video Google Drive của tổ bạn vào chữ MÃ_VIDEO_DRIVE ở dưới nhé:
+    const videoUrl = "https://drive.google.com/file/d/1bB3SsZUfuZ29Gnzp894V6HzdUc9Agtmg/preview";
+    
+    container.innerHTML = `
+        <iframe 
+            class="w-full h-full border-0"
+            src="${videoUrl}" 
+            title="Vlog: Thực hành đo thể tích của mô hình Chùa Một Cột"
+            allow="autoplay; encrypted-media"
+            allowfullscreen>
+        </iframe>
+    `;
+}
             // Hiển thị tab được chọn
             const activeTab = document.getElementById(tabId);
             if (activeTab) {
