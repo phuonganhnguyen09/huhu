@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sơ đồ giải phương trình Logarit</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .tree-line::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            width: 2px;
+            height: 20px;
+            background-color: #cbd5e1;
+        }
+        .node-content {
+            transition: all 0.3s ease;
+        }
+        .hidden-node {
+            display: none;
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        .show-node {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen p-8 font-sans">
+
+    <div class="max-w-4xl mx-auto">
+        <header class="text-center mb-12">
+            <h1 class="text-3xl font-bold text-slate-800 mb-4">Minh họa giải phương trình Logarit</h1>
+            <div class="bg-white p-4 rounded-xl shadow-md inline-block border-l-4 border-blue-500">
+                <p class="text-xl font-mono text-blue-600">log₂(x - 1) + log₂(x - 3) = 3</p>
+            </div>
+            <p class="text-slate-500 mt-2 italic text-sm">(Nhấn vào các nút để khám phá từng bước giải)</p>
+        </header>
+
+        <!-- Root Node -->
+        <div class="flex flex-col items-center">
+            <div class="relative">
+                <button onclick="toggleNode('step-1')" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg shadow-lg font-semibold transition">
+                    Bắt đầu giải
+                </button>
+            </div>
+
+            <!-- Bước 1: Điều kiện -->
+            <div id="step-1" class="hidden-node mt-10 w-full">
+                <div class="flex justify-around items-start relative pt-4">
+                    <!-- Nhánh 1: Điều kiện -->
+                    <div class="flex flex-col items-center w-1/2 relative tree-line">
+                        <div class="bg-orange-100 border border-orange-200 p-4 rounded-lg w-64 shadow-sm">
+                            <h3 class="font-bold text-orange-700 mb-2">I. Điều kiện xác định</h3>
+                            <p class="text-sm text-slate-600">x - 1 > 0 & x - 3 > 0</p>
+                            <p class="font-bold text-orange-600 mt-1">⇒ x > 3</p>
+                        </div>
+                        <button onclick="toggleNode('step-2')" class="mt-6 bg-slate-800 hover:bg-black text-white text-xs px-4 py-2 rounded-full shadow transition">
+                            Tiếp tục: Biến đổi phương trình
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bước 2: Biến đổi -->
+            <div id="step-2" class="hidden-node mt-10 w-full">
+                <div class="flex flex-col items-center relative tree-line">
+                    <div class="bg-blue-50 border border-blue-200 p-5 rounded-lg max-w-md shadow-sm text-center">
+                        <h3 class="font-bold text-blue-800 mb-2">II. Biến đổi & Giải</h3>
+                        <div class="space-y-2 text-sm text-slate-700">
+                            <p>Áp dụng: logₐM + logₐN = logₐ(MN)</p>
+                            <p class="bg-white p-2 rounded">log₂[(x-1)(x-3)] = 3</p>
+                            <p>⇔ (x-1)(x-3) = 2³ = 8</p>
+                            <p>⇔ x² - 4x + 3 = 8</p>
+                            <p class="font-semibold text-blue-600">⇔ x² - 4x - 5 = 0</p>
+                        </div>
+                    </div>
+                    <button onclick="toggleNode('step-3')" class="mt-6 bg-slate-800 hover:bg-black text-white text-xs px-4 py-2 rounded-full shadow transition">
+                        Tiếp tục: Tìm nghiệm
+                    </button>
+                </div>
+            </div>
+
+            <!-- Bước 3: Nghiệm và Kiểm tra -->
+            <div id="step-3" class="hidden-node mt-10 w-full">
+                <div class="flex justify-center gap-8 relative tree-line">
+                    <!-- Nghiệm 1 -->
+                    <div class="bg-white border p-4 rounded-lg shadow-md w-40 text-center">
+                        <p class="text-lg font-bold">x = 5</p>
+                        <span class="text-green-600 text-xs font-bold px-2 py-1 bg-green-50 rounded">THỎA MÃN (x>3)</span>
+                    </div>
+                    <!-- Nghiệm 2 -->
+                    <div class="bg-white border p-4 rounded-lg shadow-md w-40 text-center opacity-60">
+                        <p class="text-lg font-bold">x = -1</p>
+                        <span class="text-red-600 text-xs font-bold px-2 py-1 bg-red-50 rounded">LOẠI</span>
+                    </div>
+                </div>
+                
+                <div class="flex justify-center mt-12">
+                    <div class="bg-green-600 text-white px-10 py-4 rounded-2xl shadow-xl text-2xl font-bold animate-bounce">
+                        KẾT LUẬN: x = 5
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleNode(id) {
+            const node = document.getElementById(id);
+            if (node.classList.contains('hidden-node')) {
+                node.classList.remove('hidden-node');
+                node.classList.add('show-node');
+                // Scroll smoothly to the new content
+                node.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            } else {
+                node.classList.remove('show-node');
+                node.classList.add('hidden-node');
+            }
+        }
+    </script>
+</body>
+</html>
