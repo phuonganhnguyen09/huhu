@@ -586,17 +586,13 @@
 // --- HÀM TỰ TẢI VIDEO KHI BẤM NÚT PLAY TRONG VLOG ---
 function playVlogVideo() {
     const container = document.getElementById('vlog-container');
-    // Nhớ thay mã ID video Google Drive của tổ bạn vào chữ MÃ_VIDEO_DRIVE ở dưới nhé:
-    const videoUrl = "https://drive.google.com/file/d/1bB3SsZUfuZ29Gnzp894V6HzdUc9Agtmg/preview";
+    const videoUrl = "https://drive.google.com/uc?export=download&id=1bB3SsZUfuZ29Gnzp894V6HzdUc9Agtmg";
     
     container.innerHTML = `
-        <iframe 
-            class="w-full h-full border-0"
-            src="${videoUrl}" 
-            title="Vlog: Thực hành đo thể tích của mô hình Chùa Một Cột"
-            allow="autoplay; encrypted-media"
-            allowfullscreen>
-        </iframe>
+        <video class="w-full h-full object-cover" controls autoplay>
+            <source src="${videoUrl}" type="video/mp4">
+            Trình duyệt của bạn không hỗ trợ phát video này.
+        </video>
     `;
 }
             // Hiển thị tab được chọn
@@ -640,9 +636,15 @@ function playVlogVideo() {
                 currentResult = num1 * num2;
             }
 
-            document.getElementById('game-question').innerText = questionText;
-            document.getElementById('game-feedback').innerText = "";
-            document.getElementById('game-answer').value = "";
+// Đoạn code bảo hiểm tránh crash khi ở tab khác
+    const qElem = document.getElementById('game-question');
+    const fElem = document.getElementById('game-feedback');
+    const aElem = document.getElementById('game-answer');
+    if (qElem && fElem && aElem) {
+        qElem.innerText = questionText;
+        fElem.innerText = "";
+        aElem.value = "";
+    }
         }
 
         function checkAnswer() {
