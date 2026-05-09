@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mô phỏng Cây Xác Suất 3D</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    /* Đồ họa 3D cho các viên bi */
+    .marble-container {
+      display: inline-block;
+      perspective: 1000px;
+    }
+    .marble {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      margin: 0 auto;
+      box-shadow: 
+        inset -10px -10px 20px rgba(0,0,0,0.3), /* Đổ bóng bên trong tạo độ sâu */
+        inset 5px 5px 15px rgba(255,255,255,0.8), /* Phản chiếu ánh sáng */
+        5px 10px 15px rgba(0,0,0,0.2); /* Đổ bóng rớt xuống sàn */
+      transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    
+    .marble-red {
+      background: radial-gradient(circle at 30% 30%, #ff7eb3, #ff0055, #8a002b);
+    }
+    .marble-blue {
+      background: radial-gradient(circle at 30% 30%, #6ee2f5, #007bff, #003a8c);
+    }
+    .marble-yellow {
+      background: radial-gradient(circle at 30% 30%, #fff7a1, #ffcc00, #b38f00);
+    }
+    .marble-white {
+      background: radial-gradient(circle at 30% 30%, #ffffff, #e6e6e6, #a6a6a6);
+    }
+
+    /* Nút bấm 3D */
+    .btn-3d {
+      transform-style: preserve-3d;
+      transition: all 0.2s ease;
+      box-shadow: 0 8px 0px rgba(0,0,0,0.1), 0 15px 20px rgba(0,0,0,0.1);
+    }
+    .btn-3d:hover .marble {
+      transform: translateZ(20px) scale(1.1) rotate(15deg);
+    }
+    .btn-3d:active {
+      transform: translateY(6px);
+      box-shadow: 0 2px 0px rgba(0,0,0,0.1), 0 5px 10px rgba(0,0,0,0.1);
+    }
+    .btn-selected {
+      transform: translateY(6px);
+      box-shadow: 0 2px 0px rgba(0,0,0,0.1), 0 5px 10px rgba(0,0,0,0.2) !important;
+      border-color: #4f46e5 !important; /* Indigo 600 */
+      background-color: #eef2ff !important;
+    }
+
+    /* CSS phân số */
+    .fraction {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      vertical-align: middle;
+      font-weight: 700;
+    }
+    .fraction span:first-child {
+      border-bottom: 2px solid currentColor;
+      padding: 0 0.3em;
+    }
+    .fraction span:last-child {
+      padding: 0 0.3em;
+    }
+
+    /* Card nổi 3D */
+    .card-3d {
+      background: white;
+      border-radius: 24px;
+      box-shadow: 
+        0 20px 40px -10px rgba(0,0,0,0.1),
+        0 0 20px rgba(0,0,0,0.02) inset;
+    }
+
+    .fade-in-up {
+      animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+
+<body class="text-slate-800 min-h-screen p-4 md:p-8">
+
+  <div class="max-w-5xl mx-auto">
+    <header class="text-center mb-10">
+      <h1 class="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 mb-4 drop-shadow-sm">
+        Mô phỏng Xác Suất 3D
+      </h1>
+      <p class="text-lg text-slate-600 max-w-3xl mx-auto bg-white/50 p-4 rounded-xl shadow-sm backdrop-blur-sm border border-white">
+        <strong>Bài toán:</strong> Hộp có 4 bi Đỏ, 3 bi Xanh, 2 bi Vàng, 1 bi Trắng. Lấy ngẫu nhiên lần lượt 2 viên (không hoàn lại). Tính xác suất để 2 viên cùng màu.
+      </p>
+    </header>
+
+    <div class="card-3d border border-slate-100 overflow-hidden relative">
+      
+      <div class="bg-slate-50 p-6 border-b border-slate-200 flex flex-col items-center relative z-10">
+        <h2 class="font-bold text-slate-500 uppercase tracking-wider text-sm mb-4">Trạng thái hộp (Lúc đầu: 10 viên)</h2>
+        <div class="flex gap-6 bg-white px-8 py-4 rounded-2xl shadow-[inset_0_2px_10px_rgba(0,0,0,0.05)] border border-slate-100">
+          <div class="flex items-center gap-2"><div class="marble marble-red" style="width: 24px; height: 24px;"></div><span class="font-bold text-xl">x 4</span></div>
+          <div class="flex items-center gap-2"><div class="marble marble-blue" style="width: 24px; height: 24px;"></div><span class="font-bold text-xl">x 3</span></div>
+          <div class="flex items-center gap-2"><div class="marble marble-yellow" style="width: 24px; height: 24px;"></div><span class="font-bold text-xl">x 2</span></div>
+          <div class="flex items-center gap-2"><div class="marble marble-white" style="width: 24px; height: 24px;"></div><span class="font-bold text-xl">x 1</span></div>
+        </div>
+      </div>
+
+      <div class="p-6 md:p-10 relative z-10">
+        <div class="flex items-center gap-4 mb-6">
+          <div class="h-8 w-1 bg-blue-500 rounded-full"></div>
+          <h3 class="text-2xl font-extrabold text-slate-800">Lần rút 1</h3>
+          <span class="text-slate-400 text-sm italic">Chọn 1 viên để tiếp tục</span>
+        </div>
+        
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-10" id="level-1-buttons">
+          </div>
+
+        <div id="level-2-container" class="hidden opacity-0">
+          <div class="flex justify-center mb-6 text-slate-300">
+            <svg class="w-10 h-10 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
+          </div>
+          
+          <div class="flex items-center gap-4 mb-6">
+            <div class="h-8 w-1 bg-indigo-500 rounded-full"></div>
+            <h3 class="text-2xl font-extrabold text-slate-800">Lần rút 2</h3>
+            <span class="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-sm font-bold shadow-sm">Hộp còn 9 viên</span>
+          </div>
+
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8" id="level-2-branches">
+            </div>
+          
+          <div class="bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-100 rounded-2xl p-6 text-center shadow-sm">
+            <p class="text-emerald-900 text-lg" id="branch-explanation"></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-slate-900 text-white p-8 md:p-10 relative overflow-hidden">
+        <div class="absolute -bottom-20 -right-20 w-64 h-64 bg-indigo-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30"></div>
+        <div class="absolute -bottom-20 -left-20 w-64 h-64 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30"></div>
+
+        <h2 class="text-2xl font-bold mb-6 text-amber-400 relative z-10">📋 Lời giải tổng quát (Biến cố A: 2 viên cùng màu)</h2>
+        <div class="grid md:grid-cols-2 gap-8 text-slate-300 relative z-10 text-lg">
+          <ul class="space-y-4">
+            <li class="flex items-center gap-3 bg-white/5 p-3 rounded-lg border border-white/10">
+              <div class="marble marble-red" style="width: 20px; height: 20px;"></div>
+              <span>P(2 Đỏ) = <span class="fraction"><span>4</span><span>10</span></span> × <span class="fraction"><span>3</span><span>9</span></span> = 12/90</span>
+            </li>
+            <li class="flex items-center gap-3 bg-white/5 p-3 rounded-lg border border-white/10">
+              <div class="marble marble-blue" style="width: 20px; height: 20px;"></div>
+              <span>P(2 Xanh) = <span class="fraction"><span>3</span><span>10</span></span> × <span class="fraction"><span>2</span><span>9</span></span> = 6/90</span>
+            </li>
+          </ul>
+          <ul class="space-y-4">
+            <li class="flex items-center gap-3 bg-white/5 p-3 rounded-lg border border-white/10">
+              <div class="marble marble-yellow" style="width: 20px; height: 20px;"></div>
+              <span>P(2 Vàng) = <span class="fraction"><span>2</span><span>10</span></span> × <span class="fraction"><span>1</span><span>9</span></span> = 2/90</span>
+            </li>
+            <li class="flex items-center gap-3 bg-white/5 p-3 rounded-lg border border-white/10 opacity-60">
+              <div class="marble marble-white" style="width: 20px; height: 20px;"></div>
+              <span>P(2 Trắng) = <span class="fraction"><span>1</span><span>10</span></span> × <span class="fraction"><span>0</span><span>9</span></span> = 0</span>
+            </li>
+          </ul>
+        </div>
+        
+        <div class="mt-8 pt-6 border-t border-slate-700 text-xl text-center relative z-10 flex flex-col md:flex-row items-center justify-center gap-4">
+          <span>Xác suất tổng: <strong>P(A)</strong> = <span class="fraction"><span>12 + 6 + 2 + 0</span><span>90</span></span> = <span class="fraction"><span>20</span><span>90</span></span> = </span>
+          <strong class="text-4xl text-white bg-gradient-to-r from-green-500 to-emerald-600 px-6 py-2 rounded-xl shadow-lg border border-green-400">2/9</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  // Dữ liệu ban đầu cấu hình class 3D thay vì emoji
+  const initialMarbles = {
+    red: { count: 4, class: 'marble-red', name: 'Đỏ', theme: 'border-red-200 bg-red-50/50' },
+    blue: { count: 3, class: 'marble-blue', name: 'Xanh', theme: 'border-blue-200 bg-blue-50/50' },
+    yellow: { count: 2, class: 'marble-yellow', name: 'Vàng', theme: 'border-yellow-200 bg-yellow-50/50' },
+    white: { count: 1, class: 'marble-white', name: 'Trắng', theme: 'border-slate-200 bg-slate-50' }
+  };
+  const total1 = 10;
+  const total2 = 9;
+
+  let currentSelectedColor = null;
+
+  // Render Lần 1
+  function initLevel1() {
+    const container = document.getElementById('level-1-buttons');
+    container.innerHTML = '';
+    
+    for (const [key, data] of Object.entries(initialMarbles)) {
+      const btn = document.createElement('button');
+      btn.className = `btn-3d border-2 rounded-2xl p-6 flex flex-col items-center justify-center bg-white ${data.theme}`;
+      btn.onclick = () => selectFirstDraw(key, btn);
+      
+      btn.innerHTML = `
+        <div class="marble-container mb-4">
+          <div class="marble ${data.class}"></div>
+        </div>
+        <span class="font-bold text-lg mb-2 text-slate-700">${data.name}</span>
+        <div class="bg-white px-3 py-1 rounded-lg shadow-sm border border-slate-200 text-slate-600">
+          <div class="fraction">
+            <span>${data.count}</span>
+            <span>${total1}</span>
+          </div>
+        </div>
+      `;
+      container.appendChild(btn);
+    }
+  }
+
+  // Xử lý Lần 2
+  function selectFirstDraw(selectedKey, btnElement) {
+    const buttons = document.querySelectorAll('#level-1-buttons button');
+    buttons.forEach(b => {
+      b.classList.remove('btn-selected');
+      b.style.opacity = '0.6';
+      b.style.transform = 'scale(0.98)';
+    });
+    
+    btnElement.style.opacity = '1';
+    btnElement.style.transform = '';
+    btnElement.classList.add('btn-selected');
+
+    currentSelectedColor = selectedKey;
+
+    const level2Container = document.getElementById('level-2-container');
+    const branchesContainer = document.getElementById('level-2-branches');
+    branchesContainer.innerHTML = '';
+    
+    level2Container.classList.remove('hidden');
+    // Reset animation
+    level2Container.classList.remove('fade-in-up');
+    void level2Container.offsetWidth; // trigger reflow
+    level2Container.classList.add('fade-in-up');
+
+    for (const [key, data] of Object.entries(initialMarbles)) {
+      const countL2 = (key === selectedKey) ? data.count - 1 : data.count;
+      const isTarget = (key === selectedKey);
+      
+      const branchDiv = document.createElement('div');
+      
+      let baseClass = `border-2 rounded-2xl p-6 flex flex-col items-center justify-center relative bg-white transition-all duration-300 `;
+      if (isTarget) {
+        baseClass += `border-indigo-400 ring-4 ring-indigo-50 shadow-[0_10px_25px_rgba(79,70,229,0.2)] transform md:-translate-y-2 `;
+      } else {
+        baseClass += `border-slate-100 opacity-60 scale-95 `;
+      }
+
+      branchDiv.className = baseClass;
+      
+      let badge = isTarget ? `<div class="absolute -top-4 bg-indigo-600 text-white text-sm font-bold px-4 py-1.5 rounded-full shadow-md animate-pulse">Nhánh đang xét</div>` : '';
+
+      branchDiv.innerHTML = `
+        ${badge}
+        <div class="marble-container mb-4 ${isTarget ? 'scale-110' : ''}">
+          <div class="marble ${data.class}"></div>
+        </div>
+        <span class="font-bold text-slate-700 mb-2">${data.name}</span>
+        <div class="bg-slate-50 px-3 py-1 rounded-lg border border-slate-200 text-slate-600 font-bold">
+          <div class="fraction">
+            <span>${countL2}</span>
+            <span>${total2}</span>
+          </div>
+        </div>
+      `;
+      branchesContainer.appendChild(branchDiv);
+    }
+
+    const selectedData = initialMarbles[selectedKey];
+    const explanation = document.getElementById('branch-explanation');
+    const countL2Target = selectedData.count - 1;
+    
+    if(countL2Target >= 0) {
+        const numerator = selectedData.count * countL2Target;
+        explanation.innerHTML = `
+        Xác suất rút được 2 viên <strong>${selectedData.name}</strong> liên tiếp: <br/>
+        <div class="mt-3 text-xl flex items-center justify-center gap-3">
+            <div class="fraction"><span>${selectedData.count}</span><span>10</span></div> 
+            <span class="text-emerald-500">×</span> 
+            <div class="fraction"><span>${countL2Target}</span><span>9</span></div> 
+            <span class="text-emerald-500">=</span> 
+            <strong class="bg-emerald-100 text-emerald-800 px-3 py-2 rounded-lg border border-emerald-200"><div class="fraction"><span>${numerator}</span><span>90</span></div></strong>
+        </div>
+        `;
+    } else {
+        explanation.innerHTML = `Không thể rút được 2 viên ${selectedData.name} vì trong hộp chỉ có 1 viên! Xác suất = 0.`;
+    }
+  }
+
+  // Khởi chạy
+  initLevel1();
+</script>
+
+</body>
+</html>
