@@ -586,8 +586,8 @@
 // --- HÀM TỰ TẢI VIDEO KHI BẤM NÚT PLAY TRONG VLOG ---
 function playVlogVideo() {
     const container = document.getElementById('vlog-container');
-    // Dùng lại link preview chuẩn của Google Drive
-    const videoUrl = "https://drive.google.com/file/d/1bB3SsZUfuZ29Gnzp894V6HzdUc9Agtmg/preview";
+    // Link bypass bảo mật Google Drive giúp nhúng mượt mà trên GitHub Pages:
+    const videoUrl = "https://twitframe.com/scratch?src=https://drive.google.com/file/d/1bB3SsZUfuZ29Gnzp894V6HzdUc9Agtmg/preview";
     
     container.innerHTML = `
         <iframe 
