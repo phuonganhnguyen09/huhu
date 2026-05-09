@@ -586,13 +586,17 @@
 // --- HÀM TỰ TẢI VIDEO KHI BẤM NÚT PLAY TRONG VLOG ---
 function playVlogVideo() {
     const container = document.getElementById('vlog-container');
-    const videoUrl = "https://drive.google.com/uc?export=download&id=1bB3SsZUfuZ29Gnzp894V6HzdUc9Agtmg";
+    // Dùng lại link preview chuẩn của Google Drive
+    const videoUrl = "https://drive.google.com/file/d/1bB3SsZUfuZ29Gnzp894V6HzdUc9Agtmg/preview";
     
     container.innerHTML = `
-        <video class="w-full h-full object-cover" controls autoplay>
-            <source src="${videoUrl}" type="video/mp4">
-            Trình duyệt của bạn không hỗ trợ phát video này.
-        </video>
+        <iframe 
+            class="w-full h-full border-0"
+            src="${videoUrl}" 
+            title="Vlog: Thực hành đo thể tích của mô hình Chùa Một Cột"
+            allow="autoplay; encrypted-media"
+            allowfullscreen>
+        </iframe>
     `;
 }
             // Hiển thị tab được chọn
